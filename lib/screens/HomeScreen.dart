@@ -11,10 +11,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  TextEditingController _controller = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       appBar: AppBar(
         title: Text(widget.title),
       ),
@@ -42,6 +43,39 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Text(
                 'This is another bubble message!',
                 style: TextStyle(color: Colors.white),
+              ),
+            ),
+            Spacer(),  // This makes sure the input field stays at the bottom.
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _controller,
+                      decoration: InputDecoration(
+                        hintText: 'Type a message...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.send),
+                    onPressed: () {
+                      // Handle send button press
+                      if (_controller.text.isNotEmpty) {
+                        setState(() {
+                          // Add the new message to the bubbles
+                          // You can also add more advanced message handling here.
+                          print("Sent: ${_controller.text}");
+                          _controller.clear();  // Clear the text field after sending
+                        });
+                      }
+                    },
+                  ),
+                ],
               ),
             ),
           ],
