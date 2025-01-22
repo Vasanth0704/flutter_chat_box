@@ -1,17 +1,17 @@
 import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
 
-class ChatScreen extends StatefulWidget {
+class ChatDetailScreen extends StatefulWidget {
 
   final String title;
 
-  const ChatScreen({super.key, required this.title});
+  const ChatDetailScreen({super.key, required this.title});
 
   @override
-  State<ChatScreen> createState() => _ChatScreenState();
+  State<ChatDetailScreen> createState() => _ChatDetailScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatDetailScreenState extends State<ChatDetailScreen> {
   TextEditingController _controller = TextEditingController();
 
   @override
