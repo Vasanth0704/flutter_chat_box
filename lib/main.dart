@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_box/screens/HomeScreen.dart';
+import 'package:flutter_chat_box/screens/WelcomeScreen.dart';
 
 void main()
 {
@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomeScreen(title: 'Home',),
+      home: WelcomeScreen(),
     );
   }
 }
