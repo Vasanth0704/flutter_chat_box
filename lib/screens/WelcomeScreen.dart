@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_box/screens/HomeScreen.dart';
 import 'package:flutter_chat_box/utils/ColorConstants.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -58,7 +59,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             height: 42,
             width: MediaQuery.of(context).size.width - 100,
             child: ElevatedButton(
-                onPressed: (){},
+                onPressed: (){
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HomeScreen(title: 'Home'),
+                    ),
+                  );
+
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: ColorConstants.GREEN,
                   foregroundColor: ColorConstants.CHARCAOL_BLACK,
@@ -77,7 +87,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             color: ColorConstants.DEEP_BLUE_GRAY,
             borderRadius: BorderRadius.circular(20),
             child: InkWell(
-              onTap: () {},
+              onTap: () {
+
+              },
               borderRadius: BorderRadius.circular(20),
               splashFactory: NoSplash.splashFactory,
               highlightColor: ColorConstants.DARK_CYAN_BLACK,
