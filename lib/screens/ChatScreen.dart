@@ -13,12 +13,26 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
         actions: [
+          IconButton(
+            icon: Icon(Icons.camera_alt),
+            onPressed: () {
+
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              // Handle search action
+            },
+          ),
+
           PopupMenuButton<String>(
             onSelected: (value) {
               switch (value) {
