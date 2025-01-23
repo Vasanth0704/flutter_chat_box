@@ -4,7 +4,6 @@ import 'package:flutter_chat_box/utils/Constants.dart';
 import 'ChatDetailScreen.dart';
 
 class ChatScreen extends StatefulWidget {
-
   final String title;
 
   const ChatScreen({super.key, required this.title});
@@ -19,26 +18,114 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              switch (value) {
+                case 'New Group':
+                // Navigate to New Group Screen
+                  break;
+                case 'New Broadcast':
+                // Navigate to New Broadcast Screen
+                  break;
+                case 'Linked Devices':
+                // Navigate to Linked Devices Screen
+                  break;
+                case 'Payments':
+                // Navigate to Payments Screen
+                  break;
+                case 'Settings':
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SettingsScreen(),
+                    ),
+                  );
+                  break;
+              }
+            },
+            itemBuilder: (BuildContext context) {
+              return [
+                PopupMenuItem(
+                  value: 'New Group',
+                  child: Text('New Group'),
+                ),
+                PopupMenuItem(
+                  value: 'New Broadcast',
+                  child: Text('New Broadcast'),
+                ),
+                PopupMenuItem(
+                  value: 'Linked Devices',
+                  child: Text('Linked Devices'),
+                ),
+                PopupMenuItem(
+                  value: 'Payments',
+                  child: Text('Payments'),
+                ),
+                PopupMenuItem(
+                  value: 'Settings',
+                  child: Text('Settings'),
+                ),
+              ];
+            },
+          ),
+        ],
       ),
       body: ListView.builder(
         itemCount: 10,
         itemBuilder: (context, index) {
           return ListTile(
             leading: CircleAvatar(
-              backgroundImage: NetworkImage(Constants.PLACEHOLDER_URL),
+              // backgroundImage: NetworkImage(Constants.PLACEHOLDER_URL),
             ),
             title: Text("Contact Name"),
             subtitle: Text("Last message..."),
             trailing: Text("12.00 PM"),
-            onTap: (){
+            onTap: () {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ChatDetailScreen(title: 'Chat Detail',))
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ChatDetailScreen(
+                    title: 'Chat Detail',
+                  ),
+                ),
               );
             },
           );
         },
-      )
+      ),
+    );
+  }
+}
+
+class SettingsScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Settings"),
+      ),
+      body: Center(
+        child: Text("Settings Screen"),
+      ),
+    );
+  }
+}
+
+class ChatDetailScreen extends StatelessWidget {
+  final String title;
+
+  const ChatDetailScreen({super.key, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+      ),
+      body: Center(
+        child: Text("Chat Detail Screen"),
+      ),
     );
   }
 }
