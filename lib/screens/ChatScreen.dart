@@ -76,7 +76,7 @@ class _ChatScreenState extends State<ChatScreen> {
         itemBuilder: (context, index) {
           return ListTile(
             leading: CircleAvatar(
-              // backgroundImage: NetworkImage(Constants.PLACEHOLDER_URL),
+              backgroundImage: NetworkImage(Constants.PLACEHOLDER_URL),
             ),
             title: Text("Contact Name"),
             subtitle: Text("Last message..."),
@@ -107,24 +107,6 @@ class SettingsScreen extends StatelessWidget {
       ),
       body: Center(
         child: Text("Settings Screen"),
-      ),
-    );
-  }
-}
-
-class ChatDetailScreen extends StatelessWidget {
-  final String title;
-
-  const ChatDetailScreen({super.key, required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
-      body: Center(
-        child: Text("Chat Detail Screen"),
       ),
     );
   }
