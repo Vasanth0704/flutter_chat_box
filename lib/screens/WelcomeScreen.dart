@@ -16,11 +16,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       body: Column(
         children: [
           Expanded(
-              child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 50),
-                child: Image.asset(
-                  'assets/images/circle.png',
-                  color: ColorConstants.GREEN,
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 80, vertical: 5),
+                  child: Image.asset(
+                    'assets/images/circle.png',
+                    color: ColorConstants.GREEN,
+                  ),
                 ),
               )
           ),
