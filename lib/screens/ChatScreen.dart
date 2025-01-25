@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_box/screens/SettingScreen.dart';
 import 'package:flutter_chat_box/utils/Constants.dart';
 
 import 'ChatDetailScreen.dart';
@@ -77,12 +78,6 @@ class _ChatScreenState extends State<ChatScreen> {
                 // Navigate to Payments Screen
                   break;
                 case 'Settings':
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SettingsScreen(),
-                    ),
-                  );
                   break;
               }
             },
@@ -107,6 +102,16 @@ class _ChatScreenState extends State<ChatScreen> {
                 PopupMenuItem(
                   value: 'Settings',
                   child: Text('Settings'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SettingScreen(
+                          title: 'Settings',
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ];
             },
@@ -135,20 +140,6 @@ class _ChatScreenState extends State<ChatScreen> {
             },
           );
         },
-      ),
-    );
-  }
-}
-
-class SettingsScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Settings"),
-      ),
-      body: Center(
-        child: Text("Settings Screen"),
       ),
     );
   }
