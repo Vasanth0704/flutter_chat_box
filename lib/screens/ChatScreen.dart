@@ -132,9 +132,7 @@ class _ChatScreenState extends State<ChatScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ChatDetailScreen(
-                    title: 'Chat Detail',
-                  ),
+                  builder: (context) => ChatDetailScreen(contactName: 'Contact Name'),
                 ),
               );
             },
