@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_box/screens/ChatsScreen.dart';
 import 'package:flutter_chat_box/screens/ProfileScreen.dart';
 
 class SettingScreen extends StatefulWidget {
@@ -83,7 +84,10 @@ class _SettingScreenState extends State<SettingScreen> {
             title: const Text("Chats"),
             subtitle: const Text("Theme, wallpapers, chat history"),
             onTap: () {
-              // Navigate to Chat Settings
+              Navigator.push(
+                context,
+              MaterialPageRoute(builder: (context) => ChatsScreen())
+              );
             },
           ),
           ListTile(
