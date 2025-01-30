@@ -103,29 +103,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
             title: Text("Transcript language"),
             subtitle: Text("English"),
             onTap: () {
-              {
-                showModalBottomSheet(
-                  context: context,
-                  builder: (context) =>
-                      ListView(
-                        children: [
-                          ListTile(
-                            title: Text("English"),
-                            onTap: () => _changeTranscriptLanguage("English"),
-                          ),
-                          ListTile(
-                            title: Text("Spanish"),
-                            onTap: () => _changeTranscriptLanguage("Spanish"),
-                          ),
-                          ListTile(
-                            title: Text("French"),
-                            onTap: () => _changeTranscriptLanguage("French"),
-                          ),
-                        ],
-                      ),
-                );
-              }
-            },
+            }
           ),
           const Padding(
             padding: EdgeInsets.all(16.0),
@@ -141,7 +119,4 @@ class _ChatsScreenState extends State<ChatsScreen> {
       ),
     );
   }
-}
-
-class _changeTranscriptLanguage {
 }
