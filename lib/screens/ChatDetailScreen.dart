@@ -1,5 +1,8 @@
+import 'dart:io'; // Import File
 import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../provider/UiProvider.dart';
 
 class ChatDetailScreen extends StatefulWidget {
   final String contactName;
@@ -16,6 +19,8 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final uiProvider = Provider.of<UiProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -25,10 +30,17 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
         title: Row(
           children: [
             CircleAvatar(
-              backgroundImage: AssetImage('assets/profile.jpg'), // Add profile image
+              backgroundImage: AssetImage('assets/profile.jpg'),
             ),
             SizedBox(width: 10),
-            Text(widget.contactName),
+            Expanded(
+              child: Text(
+                widget.contactName,
+                overflow: TextOverflow.ellipsis, // Add ellipsis for long text
+                maxLines: 1, // Limit to one line
+                style: TextStyle(fontSize: 16), // Optional: Adjust font size
+              ),
+            ),
           ],
         ),
         actions: [
@@ -37,28 +49,38 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
           IconButton(icon: Icon(Icons.more_vert), onPressed: () {}),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              reverse: true,
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                return Bubble(
-                  margin: BubbleEdges.only(top: 10),
-                  alignment: index % 2 == 0 ? Alignment.topLeft : Alignment.topRight,
-                  nip: index % 2 == 0 ? BubbleNip.leftTop : BubbleNip.rightTop,
-                  color: index % 2 == 0 ? Colors.blueAccent : Colors.green,
-                  child: Text(
-                    messages[index],
-                    style: TextStyle(color: Colors.white),
-                  ),
-                );
-              },
+      body: Container(
+        decoration: BoxDecoration(
+          image: uiProvider.wallpaperPath != null
+              ? DecorationImage(
+            image: FileImage(File(uiProvider.wallpaperPath!)), // Use FileImage
+            fit: BoxFit.cover,
+          )
+              : null, // No wallpaper if null
+        ),
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                reverse: true,
+                itemCount: messages.length,
+                itemBuilder: (context, index) {
+                  return Bubble(
+                    margin: BubbleEdges.only(top: 10),
+                    alignment: index % 2 == 0 ? Alignment.topLeft : Alignment.topRight,
+                    nip: index % 2 == 0 ? BubbleNip.leftTop : BubbleNip.rightTop,
+                    color: index % 2 == 0 ? Colors.blueAccent : Colors.green,
+                    child: Text(
+                      messages[index],
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-          _buildInputField(),
-        ],
+            _buildInputField(),
+          ],
+        ),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,6 +15,15 @@ class ChatsScreen extends StatefulWidget {
 
 class _ChatsScreenState extends State<ChatsScreen> {
   String theme = "System default";
+
+  Future<void> _pickWallpaper() async {
+    final picker = ImagePicker();
+    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedImage != null) {
+      Provider.of<UiProvider>(context, listen: false).setWallpaper(pickedImage.path);
+    }
+  }
 
   void _showThemeDialog() {
     showDialog(
@@ -87,7 +97,7 @@ class _ChatsScreenState extends State<ChatsScreen> {
           ListTile(
             leading: Icon(Icons.wallpaper),
             title: Text("Wallpaper"),
-            onTap: () {},
+            onTap: _pickWallpaper,
           ),
           const Padding(
             padding: EdgeInsets.all(16.0),
