@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_box/provider/UiProvider.dart';
-import 'package:flutter_chat_box/screens/SettingScreen.dart';
 import 'package:flutter_chat_box/screens/WelcomeScreen.dart';
 import 'package:provider/provider.dart';
 
