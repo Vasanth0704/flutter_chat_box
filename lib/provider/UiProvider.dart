@@ -24,9 +24,15 @@ class UiProvider extends ChangeNotifier{
 
   );
 
-  changeTheme(){
+  // changeTheme(){
+  //
+  //   _isDark = !isDark;
+  //   storage.setBool("isDark", _isDark);
+  //   notifyListeners();
+  // }
 
-    _isDark = !isDark;
+  Future<void> changeTheme(bool isDarkMode) async {
+    _isDark = isDarkMode;
     storage.setBool("isDark", _isDark);
     notifyListeners();
   }
