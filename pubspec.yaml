@@ -39,6 +39,7 @@ dependencies:
   provider: ^6.1.2
   shared_preferences: ^2.4.0
   video_player: ^2.9.2
+#  jitsi_meet_flutter_sdk: ^10.3.0
 
 dev_dependencies:
   flutter_test:
