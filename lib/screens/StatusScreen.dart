@@ -16,7 +16,7 @@ class _StatusScreenState extends State<StatusScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
-        backgroundColor: Colors.amberAccent,
+        automaticallyImplyLeading: false, // Removes back arrow
       ),
       body: Center(
         child: Text(widget.title),

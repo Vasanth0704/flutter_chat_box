@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_box/screens/HomeScreen.dart';
+import 'package:flutter_chat_box/screens/HomePage.dart';
 import 'package:flutter_chat_box/utils/ColorConstants.dart';
 
 class WelcomeScreen extends StatefulWidget {

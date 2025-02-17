@@ -47,6 +47,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false, // Removes back arrow
         title: Text(widget.title),
         actions: [
           IconButton(

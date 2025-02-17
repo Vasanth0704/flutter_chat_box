@@ -16,6 +16,7 @@ class _CallScreenState extends State<CallScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        automaticallyImplyLeading: false, // Removes back arrow
       ),
       body: Center(
         child: Text(widget.title),
