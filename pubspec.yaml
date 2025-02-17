@@ -40,6 +40,7 @@ dependencies:
   shared_preferences: ^2.4.0
   video_player: ^2.9.2
 #  jitsi_meet_flutter_sdk: ^10.3.0
+  supabase_flutter: ^2.0.0
 
 dev_dependencies:
   flutter_test:
