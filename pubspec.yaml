@@ -41,6 +41,8 @@ dependencies:
   video_player: ^2.9.2
 #  jitsi_meet_flutter_sdk: ^10.3.0
   supabase_flutter: ^2.0.0
+  fluttertoast: ^8.2.2  # For toast messages (optional)
+  flutter_dotenv: ^5.2.1
 
 dev_dependencies:
   flutter_test:
