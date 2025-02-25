@@ -40,7 +40,7 @@ dependencies:
   shared_preferences: ^2.4.0
   video_player: ^2.9.2
 #  jitsi_meet_flutter_sdk: ^10.3.0
-  supabase_flutter: ^2.0.0
+  supabase_flutter: ^2.8.4
   fluttertoast: ^8.2.2  # For toast messages (optional)
   flutter_dotenv: ^5.2.1
   flutter_secure_storage: ^9.2.4
