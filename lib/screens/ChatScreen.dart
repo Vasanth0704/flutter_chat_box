@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_box/screens/NewChatScreen.dart';
 import 'package:flutter_chat_box/screens/SettingScreen.dart';
 import 'package:flutter_chat_box/utils/Constants.dart';
 
@@ -119,8 +120,21 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+          onPressed: () {
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => NewChatScreen(title: 'New Chat',),
+              ),
+            );
+
+          },
+          child: Icon(Icons.contacts),
+      ),
       body: ListView.builder(
-        itemCount: 10,
+        itemCount: 4,
         itemBuilder: (context, index) {
           return ListTile(
             leading: CircleAvatar(
@@ -130,12 +144,12 @@ class _ChatScreenState extends State<ChatScreen> {
             subtitle: Text("Last message..."),
             trailing: Text("12.00 PM"),
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ChatDetailScreen(contactName: 'Contact Name'),
-                ),
-              );
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) => ChatDetailScreen(contactName: 'Contact Name'),
+              //   ),
+              // );
             },
           );
         },
