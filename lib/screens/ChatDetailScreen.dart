@@ -1,10 +1,10 @@
 import 'dart:io';
-import 'package:bubble/bubble.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:video_player/video_player.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../provider/UiProvider.dart';
+
+final SupabaseClient _supabase = Supabase.instance.client;
 
 class ChatDetailScreen extends StatefulWidget {
   final String receiverId;
@@ -23,80 +23,54 @@ class ChatDetailScreen extends StatefulWidget {
 }
 
 class _ChatDetailScreenState extends State<ChatDetailScreen> {
-  final ImagePicker _picker = ImagePicker();
   final TextEditingController _controller = TextEditingController();
-  final List<Map<String, dynamic>> messages = [];
+  final user = _supabase.auth.currentUser;
+  List<Map<String, dynamic>> _messages = [];
 
-  // Function to pick media (Image or Video)
-  Future<void> _pickMedia(ImageSource source, bool isVideo) async {
-    final pickedFile = isVideo
-        ? await _picker.pickVideo(source: source)
-        : await _picker.pickImage(source: source);
+  @override
+  void initState() {
+    super.initState();
+    _fetchMessages(); // Fetch messages when screen loads
+  }
 
-    if (pickedFile != null) {
+  /// Fetch Messages Between Current User & Receiver
+  Future<void> _fetchMessages() async {
+    if (user == null) return;
+
+    try {
+      final response = await _supabase
+          .from('messages')
+          .select()
+          .or('sender_id.eq.${user!.id},receiver_id.eq.${user!.id}')
+          .order('created_at', ascending: false);
+
       setState(() {
-        messages.insert(0, {
-          "text": null,
-          isVideo ? "video" : "image": File(pickedFile.path),
-        });
+        _messages = response;
       });
+    } catch (e) {
+      print("Error fetching messages: $e");
     }
   }
 
-  void _showMediaPicker() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return Wrap(
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt, color: Colors.blue),
-              title: const Text('Take a Photo'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickMedia(ImageSource.camera, false);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library, color: Colors.green),
-              title: const Text('Choose from Gallery'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickMedia(ImageSource.gallery, false);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.videocam, color: Colors.orange),
-              title: const Text('Record a Video'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickMedia(ImageSource.camera, true);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.video_library, color: Colors.red),
-              title: const Text('Choose Video from Gallery'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickMedia(ImageSource.gallery, true);
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+  /// Send a text message
+  void _sendMessage() async {
+    if (_controller.text.isNotEmpty && user != null) {
+      String messageText = _controller.text.trim();
+      _controller.clear();
 
-  void _sendMessage() {
-    if (_controller.text.isNotEmpty) {
-      setState(() {
-        messages.insert(0, {
-          "text": _controller.text,
-          "image": null,
-          "video": null,
+      try {
+        await _supabase.from('messages').insert({
+          'message': messageText,
+          'receiver_id': widget.receiverId,
+          'sender_id': user!.id,
+          'is_read': false,
+          'created_at': DateTime.now().toIso8601String(),
         });
-        _controller.clear();
-      });
+
+        _fetchMessages(); // Refresh message list after sending
+      } catch (e) {
+        print("Error sending message: $e");
+      }
     }
   }
 
@@ -125,6 +99,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
     );
   }
 
+  /// App Bar UI
   AppBar _buildAppBar() {
     return AppBar(
       leading: IconButton(
@@ -133,8 +108,9 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
       ),
       title: Row(
         children: [
-          const CircleAvatar(
-            backgroundImage: AssetImage('assets/profile.jpg'),
+          CircleAvatar(
+            backgroundImage: NetworkImage(
+                'https://gravatar.com/avatar/${widget.receiverEmail}'),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -164,33 +140,34 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
     );
   }
 
-  Expanded _buildMessageList() {
+  /// Message List UI with ListView
+  Widget _buildMessageList() {
     return Expanded(
-      child: ListView.builder(
+      child: _messages.isEmpty
+          ? const Center(child: Text("No messages yet."))
+          : ListView.builder(
         reverse: true,
-        itemCount: messages.length,
+        itemCount: _messages.length,
         itemBuilder: (context, index) {
+          final message = _messages[index];
+
           return ChatBubble(
-            message: messages[index]["text"],
-            image: messages[index]["image"],
-            video: messages[index]["video"],
-            isSentByMe: index % 2 != 0,
+            message: message["message"],
+            isSentByMe: message["sender_id"] == user!.id,
+            isRead: message["is_read"] ?? false,
           );
         },
       ),
     );
   }
 
+  /// Input field UI
   Widget _buildInputField() {
     return Container(
       color: Colors.black87,
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 5.0),
       child: Row(
         children: [
-          IconButton(
-            icon: const Icon(Icons.camera_alt, color: Colors.white),
-            onPressed: _showMediaPicker,
-          ),
           Expanded(
             child: TextField(
               controller: _controller,
@@ -205,10 +182,6 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.mic, color: Colors.lightGreen),
-            onPressed: () {},
-          ),
-          IconButton(
             icon: const Icon(Icons.send, color: Colors.blue),
             onPressed: _sendMessage,
           ),
@@ -219,65 +192,50 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
 }
 
 // Chat Bubble Widget
-class ChatBubble extends StatefulWidget {
+class ChatBubble extends StatelessWidget {
   final String? message;
-  final File? image;
-  final File? video;
   final bool isSentByMe;
+  final bool isRead;
 
-  const ChatBubble({super.key, this.message, this.image, this.video, required this.isSentByMe});
-
-  @override
-  _ChatBubbleState createState() => _ChatBubbleState();
-}
-
-class _ChatBubbleState extends State<ChatBubble> {
-  late VideoPlayerController _videoPlayerController;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.video != null) {
-      _videoPlayerController = VideoPlayerController.file(widget.video!)
-        ..initialize().then((_) {
-          setState(() {});
-        });
-    }
-  }
-
-  @override
-  void dispose() {
-    if (widget.video != null) {
-      _videoPlayerController.dispose();
-    }
-    super.dispose();
-  }
+  const ChatBubble({
+    super.key,
+    this.message,
+    required this.isSentByMe,
+    required this.isRead,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: widget.isSentByMe ? Alignment.topRight : Alignment.topLeft,
+      alignment: isSentByMe ? Alignment.topRight : Alignment.topLeft,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: widget.isSentByMe ? Colors.green : Colors.blueAccent,
-          borderRadius: BorderRadius.circular(15),
+          color: isSentByMe ? Colors.green.shade600 : Colors.blue.shade600,
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(15),
+            topRight: const Radius.circular(15),
+            bottomLeft: isSentByMe ? const Radius.circular(15) : Radius.zero,
+            bottomRight: isSentByMe ? Radius.zero : const Radius.circular(15),
+          ),
         ),
         child: Column(
-          crossAxisAlignment: widget.isSentByMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment:
+          isSentByMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
-            if (widget.message != null) Text(widget.message!, style: const TextStyle(color: Colors.white)),
-            if (widget.image != null) Image.file(widget.image!, width: 200, height: 200, fit: BoxFit.cover),
-            if (widget.video != null)
-              _videoPlayerController.value.isInitialized
-                  ? GestureDetector(
-                onTap: () => _videoPlayerController.value.isPlaying
-                    ? _videoPlayerController.pause()
-                    : _videoPlayerController.play(),
-                child: SizedBox(width: 200, height: 200, child: VideoPlayer(_videoPlayerController)),
-              )
-                  : const CircularProgressIndicator(),
+            Text(
+              message ?? "",
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              isSentByMe ? (isRead ? "✔️ Read" : "⏳ Sent") : "",
+              style: TextStyle(
+                fontSize: 12,
+                color: isRead ? Colors.white70 : Colors.white38,
+              ),
+            ),
           ],
         ),
       ),
