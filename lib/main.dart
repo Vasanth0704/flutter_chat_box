@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_box/provider/UiProvider.dart';
-import 'package:flutter_chat_box/screens/RegisterScreen.dart';
+import 'package:flutter_chat_box/screens/auth/RegisterScreen.dart';
 import 'package:flutter_chat_box/screens/WelcomeScreen.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
