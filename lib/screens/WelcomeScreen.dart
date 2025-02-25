@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_box/screens/HomePage.dart';
+import 'package:flutter_chat_box/screens/auth/LoginScreen.dart';
 import 'package:flutter_chat_box/utils/ColorConstants.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -64,7 +65,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => HomeScreen(title: 'Home'),
+                      builder: (context) => LoginScreen(title: 'Login'),
                     ),
                   );
 
