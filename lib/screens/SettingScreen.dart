@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_chat_box/screens/ChatsScreen.dart';
 import 'package:flutter_chat_box/screens/ProfileScreen.dart';
 
+import 'auth/LoginScreen.dart';
+
 class SettingScreen extends StatefulWidget {
   final String title;
 
@@ -12,7 +14,10 @@ class SettingScreen extends StatefulWidget {
 }
 
 class _SettingScreenState extends State<SettingScreen> {
-  String _userName = "Your Name";
+
+  final user = supabase.auth.currentUser;
+
+  // String _userName = ;
   String _about = "Hey there! I am using WhatsApp.";
   String _profileImage = "https://via.placeholder.com/150"; // Replace with a valid profile image URL
 
@@ -30,10 +35,10 @@ class _SettingScreenState extends State<SettingScreen> {
             contentPadding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
             leading: CircleAvatar(
               radius: 30,
-              backgroundImage: NetworkImage(_profileImage),
+              backgroundImage: NetworkImage('https://gravatar.com/avatar/${user!.email}'),
             ),
             title: Text(
-              _userName,
+              user?.userMetadata?['name'] ?? "Your Name",
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             subtitle: Text(_about),
@@ -43,7 +48,7 @@ class _SettingScreenState extends State<SettingScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => ProfileScreen(
-                    name: _userName,
+                    name: user?.userMetadata?['name'] ?? "Your Name",
                     about: _about,
                     profileImage: _profileImage,
                   ),
@@ -53,7 +58,7 @@ class _SettingScreenState extends State<SettingScreen> {
               // Update user data if the user makes changes on ProfileScreen
               if (result != null && result is Map<String, String>) {
                 setState(() {
-                  _userName = result['name'] ?? _userName;
+                  // _userName = result['name'] ?? _userName;
                   _about = result['about'] ?? _about;
                   _profileImage = result['profileImage'] ?? _profileImage;
                 });
