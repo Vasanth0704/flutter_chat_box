@@ -23,8 +23,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 80, vertical: 5),
                   child: Image.asset(
-                    'assets/images/circle.png',
-                    color: ColorConstants.GREEN,
+                    'assets/images/logo.png',
+                    // color: ColorConstants.GREEN,
                   ),
                 ),
               )
