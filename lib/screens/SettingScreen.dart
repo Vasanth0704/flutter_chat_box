@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_box/screens/ChatsScreen.dart';
+import 'package:flutter_chat_box/screens/HomePage.dart';
 import 'package:flutter_chat_box/screens/ProfileScreen.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'auth/LoginScreen.dart';
 
@@ -17,9 +19,25 @@ class _SettingScreenState extends State<SettingScreen> {
 
   final user = supabase.auth.currentUser;
 
+  final storage = FlutterSecureStorage(); // Secure storage instance
+
   // String _userName = ;
   String _about = "Hey there! I am using WhatsApp.";
   String _profileImage = "https://via.placeholder.com/150"; // Replace with a valid profile image URL
+
+  Future<void> signOut() async {
+    await supabase.auth.signOut();
+    await storage.delete(key: 'session');
+
+    // Navigate to login screen and remove all previous routes
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        // builder: (context) => LoginScreen(title: 'Login'),
+        builder: (context) => HomePage(title: 'Home'),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -124,6 +142,19 @@ class _SettingScreenState extends State<SettingScreen> {
             title: const Text("Invite a Friend"),
             onTap: () {
               // Share Invite
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text("Logout"),
+            onTap: () {
+              // Share Invite
+              signOut();
+
+              // Handle logout action
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Logged out')),
+              );
             },
           ),
         ],
