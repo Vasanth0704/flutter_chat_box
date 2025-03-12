@@ -1,8 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../provider/UiProvider.dart';
+
+import 'package:http/http.dart' as http;
 
 final SupabaseClient _supabase = Supabase.instance.client;
 
@@ -53,12 +57,36 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
   }
 
   /// Send a text message
+  // void _sendMessage() async {
+  //   if (_controller.text.isNotEmpty && user != null) {
+  //     String messageText = _controller.text.trim();
+  //     _controller.clear();
+  //
+  //     try {
+  //       await _supabase.from('messages').insert({
+  //         'message': messageText,
+  //         'receiver_id': widget.receiverId,
+  //         'sender_id': user!.id,
+  //         'is_read': false,
+  //         'created_at': DateTime.now().toIso8601String(),
+  //       });
+  //
+  //       _fetchMessages(); // Refresh message list after sending
+  //     } catch (e) {
+  //       print("Error sending message: $e");
+  //     }
+  //   }
+  // }
+
   void _sendMessage() async {
+    print(_controller.text);
+
     if (_controller.text.isNotEmpty && user != null) {
       String messageText = _controller.text.trim();
       _controller.clear();
 
       try {
+        // Store message in Supabase
         await _supabase.from('messages').insert({
           'message': messageText,
           'receiver_id': widget.receiverId,
@@ -67,7 +95,38 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
           'created_at': DateTime.now().toIso8601String(),
         });
 
-        _fetchMessages(); // Refresh message list after sending
+        _fetchMessages(); // Refresh message list
+
+        // Ensure .env is loaded
+        final flaskUrl = dotenv.env['FLASK_IP'] ?? '';
+
+        if (flaskUrl.isEmpty) {
+          print("Error: FLASK_IP is not set in .env");
+          return;
+        }
+
+        // Send message to Flask bot API
+        final botResponse = await http.post(
+          Uri.parse("$flaskUrl/chatbot"),
+          headers: {"Content-Type": "application/json"},
+          body: jsonEncode({"message": messageText}),
+        );
+
+        print("Bot response status: ${botResponse.statusCode}");
+
+        if (botResponse.statusCode == 200) {
+          final data = jsonDecode(botResponse.body);
+          String botReply = data["reply"] ?? "No response from bot";
+
+          print("Bot reply: $botReply");
+
+          // Display bot response
+          setState(() {
+            _messages.insert(0, {"message": botReply, "sender_id": "bot"});
+          });
+        } else {
+          print("Bot API error: ${botResponse.body}");
+        }
       } catch (e) {
         print("Error sending message: $e");
       }
