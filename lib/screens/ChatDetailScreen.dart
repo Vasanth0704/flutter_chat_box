@@ -5,7 +5,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../provider/UiProvider.dart';
-
 import 'package:http/http.dart' as http;
 
 final SupabaseClient _supabase = Supabase.instance.client;
@@ -35,6 +34,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
   void initState() {
     super.initState();
     _fetchMessages(); // Fetch messages when screen loads
+    _subscribeToMessages(); // Listen for new messages in real-time
   }
 
   /// Fetch Messages Between Current User & Receiver
@@ -56,31 +56,20 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
     }
   }
 
-  /// Send a text message
-  // void _sendMessage() async {
-  //   if (_controller.text.isNotEmpty && user != null) {
-  //     String messageText = _controller.text.trim();
-  //     _controller.clear();
-  //
-  //     try {
-  //       await _supabase.from('messages').insert({
-  //         'message': messageText,
-  //         'receiver_id': widget.receiverId,
-  //         'sender_id': user!.id,
-  //         'is_read': false,
-  //         'created_at': DateTime.now().toIso8601String(),
-  //       });
-  //
-  //       _fetchMessages(); // Refresh message list after sending
-  //     } catch (e) {
-  //       print("Error sending message: $e");
-  //     }
-  //   }
-  // }
+  /// Listen for new messages in real-time
+  void _subscribeToMessages() {
+    _supabase
+        .from('messages')
+        .stream(primaryKey: ['id'])
+        .order('created_at', ascending: false)
+        .listen((data) {
+      setState(() {
+        _messages = data;
+      });
+    });
+  }
 
   void _sendMessage() async {
-    print(_controller.text);
-
     if (_controller.text.isNotEmpty && user != null) {
       String messageText = _controller.text.trim();
       _controller.clear();
@@ -94,8 +83,6 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
           'is_read': false,
           'created_at': DateTime.now().toIso8601String(),
         });
-
-        _fetchMessages(); // Refresh message list
 
         // Ensure .env is loaded
         final flaskUrl = dotenv.env['FLASK_IP'] ?? '';
@@ -112,20 +99,17 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
           body: jsonEncode({"message": messageText}),
         );
 
-        print("Bot response status: ${botResponse.statusCode}");
-
         if (botResponse.statusCode == 200) {
           final data = jsonDecode(botResponse.body);
           String botReply = data["reply"] ?? "No response from bot";
 
-          print("Bot reply: $botReply");
-
-          // Display bot response
-          setState(() {
-            _messages.insert(0, {"message": botReply, "sender_id": "bot"});
+          await _supabase.from('messages').insert({
+            'message': botReply,
+            'receiver_id': user!.id,
+            'sender_id': widget.receiverId,
+            'is_read': false,
+            'created_at': DateTime.now().toIso8601String(),
           });
-        } else {
-          print("Bot API error: ${botResponse.body}");
         }
       } catch (e) {
         print("Error sending message: $e");
@@ -161,41 +145,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
   /// App Bar UI
   AppBar _buildAppBar() {
     return AppBar(
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () => Navigator.pop(context),
-      ),
-      title: Row(
-        children: [
-          CircleAvatar(
-            backgroundImage: NetworkImage(
-                'https://gravatar.com/avatar/${widget.receiverEmail}'),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.receiverEmail,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: const TextStyle(fontSize: 16),
-                ),
-                Text(
-                  widget.receiverPhone,
-                  style: const TextStyle(fontSize: 12, color: Colors.white70),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        IconButton(icon: const Icon(Icons.videocam), onPressed: () {}),
-        IconButton(icon: const Icon(Icons.call), onPressed: () {}),
-        IconButton(icon: const Icon(Icons.more_vert), onPressed: () {}),
-      ],
+      title: Text(widget.receiverEmail),
     );
   }
 
@@ -209,7 +159,6 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
         itemCount: _messages.length,
         itemBuilder: (context, index) {
           final message = _messages[index];
-
           return ChatBubble(
             message: message["message"],
             isSentByMe: message["sender_id"] == user!.id,
@@ -223,8 +172,8 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
   /// Input field UI
   Widget _buildInputField() {
     return Container(
+      padding: const EdgeInsets.all(8.0),
       color: Colors.black87,
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 5.0),
       child: Row(
         children: [
           Expanded(
@@ -268,34 +217,15 @@ class ChatBubble extends StatelessWidget {
     return Align(
       alignment: isSentByMe ? Alignment.topRight : Alignment.topLeft,
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
         padding: const EdgeInsets.all(12),
+        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
         decoration: BoxDecoration(
           color: isSentByMe ? Colors.green.shade600 : Colors.blue.shade600,
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(15),
-            topRight: const Radius.circular(15),
-            bottomLeft: isSentByMe ? const Radius.circular(15) : Radius.zero,
-            bottomRight: isSentByMe ? Radius.zero : const Radius.circular(15),
-          ),
+          borderRadius: BorderRadius.circular(12),
         ),
-        child: Column(
-          crossAxisAlignment:
-          isSentByMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-          children: [
-            Text(
-              message ?? "",
-              style: const TextStyle(color: Colors.white, fontSize: 16),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              isSentByMe ? (isRead ? "✔️ Read" : "⏳ Sent") : "",
-              style: TextStyle(
-                fontSize: 12,
-                color: isRead ? Colors.white70 : Colors.white38,
-              ),
-            ),
-          ],
+        child: Text(
+          message ?? "",
+          style: const TextStyle(color: Colors.white),
         ),
       ),
     );
