@@ -110,6 +110,7 @@ class _RecentChatScreenState extends State<RecentChatScreen> {
               return ListTile(
                 leading: const CircleAvatar(
                   backgroundImage: NetworkImage(Constants.PLACEHOLDER_URL),
+                  // backgroundImage: NetworkImage(user?.userMetadata?['image_path'] ?? 'https://gravatar.com/avatar/${user!.email}'),
                 ),
                 title: Text(chat.sender.name),
                 subtitle: Text(chat.message),

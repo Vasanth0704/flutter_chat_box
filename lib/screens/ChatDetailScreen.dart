@@ -93,24 +93,33 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
         }
 
         // Send message to Flask bot API
-        final botResponse = await http.post(
-          Uri.parse("$flaskUrl/chatbot"),
-          headers: {"Content-Type": "application/json"},
-          body: jsonEncode({"message": messageText}),
-        );
+        // Call bot API asynchronously
+        Future.delayed(Duration(seconds: 5), () async {
+          try {
+            final botResponse = await http.post(
+              Uri.parse("$flaskUrl/chatbot"),
+              headers: {"Content-Type": "application/json"},
+              body: jsonEncode({"message": messageText}),
+            );
 
-        if (botResponse.statusCode == 200) {
-          final data = jsonDecode(botResponse.body);
-          String botReply = data["reply"] ?? "No response from bot";
+            if (botResponse.statusCode == 200) {
+              final data = jsonDecode(botResponse.body);
+              String botReply = data["reply"] ?? "No response from bot";
 
-          await _supabase.from('messages').insert({
-            'message': botReply,
-            'receiver_id': user!.id,
-            'sender_id': widget.receiverId,
-            'is_read': false,
-            'created_at': DateTime.now().toIso8601String(),
-          });
-        }
+              // Insert bot's reply into Supabase after 5 seconds
+              await _supabase.from('messages').insert({
+                'message': botReply,
+                'receiver_id': user!.id,
+                'sender_id': widget.receiverId,
+                'is_read': false,
+                'created_at': DateTime.now().toIso8601String(),
+              });
+            }
+          } catch (e) {
+            print("Error fetching bot reply: $e");
+          }
+        });
+
       } catch (e) {
         print("Error sending message: $e");
       }
