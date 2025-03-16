@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_box/screens/ChatsScreen.dart';
 import 'package:flutter_chat_box/screens/HomePage.dart';
-import 'package:flutter_chat_box/screens/ProfileScreen.dart';
+import 'package:flutter_chat_box/screens/auth/ProfileScreen.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'auth/LoginScreen.dart';
