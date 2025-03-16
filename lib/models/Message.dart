@@ -1,4 +1,4 @@
-import 'Profile.dart';
+import 'User.dart';
 
 class Message {
   final String id;
@@ -7,7 +7,7 @@ class Message {
   final String message;
   final DateTime createdAt;
   final bool isRead;
-  final Profile sender; // ✅ Add sender details
+  final User sender; // ✅ Add sender details
   int unreadCount; // Add this field
 
 
@@ -31,7 +31,7 @@ class Message {
       message: map['message'] as String,
       createdAt: DateTime.parse(map['created_at'] as String),
       isRead: map['is_read'] as bool? ?? false,
-      sender: Profile.fromJson(map['users'] ?? {}), // ✅ Extract sender details
+      sender: User.fromJson(map['users'] ?? {}), // ✅ Extract sender details
       unreadCount: 0, // Ensure it initializes to 0
     );
   }
