@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_box/screens/CallScreen.dart';
-import 'package:flutter_chat_box/screens/ChatScreen.dart';
+import 'package:flutter_chat_box/screens/RecentChatScreen.dart';
 import 'package:flutter_chat_box/screens/StatusScreen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -24,7 +24,7 @@ class _HomePageState extends State<HomePage> {
     final String userName = user?.userMetadata?['name'] ?? 'User';
 
     final List<Widget> _screens = [
-      ChatScreen(title: 'Chat $userName'),
+      RecentChatScreen(title: 'Chat $userName'),
       StatusScreen(title: 'Status'),
       CallScreen(title: 'Call'),
     ];
