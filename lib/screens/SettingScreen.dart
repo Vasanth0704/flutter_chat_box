@@ -53,7 +53,7 @@ class _SettingScreenState extends State<SettingScreen> {
             contentPadding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
             leading: CircleAvatar(
               radius: 30,
-              backgroundImage: NetworkImage('https://gravatar.com/avatar/${user!.email}'),
+              backgroundImage: NetworkImage(user?.userMetadata?['image_path'] ?? 'https://gravatar.com/avatar/${user!.email}'),
             ),
             title: Text(
               user?.userMetadata?['name'] ?? "Your Name",
