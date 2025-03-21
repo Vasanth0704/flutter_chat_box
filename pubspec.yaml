@@ -50,6 +50,8 @@ dependencies:
   zego_uikit_prebuilt_call: ^4.16.26  # Check for the latest version
   lucide_icons: ^0.257.0
 
+  chat_bubbles: ^1.7.0
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
