@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
 
             debugShowCheckedModeBanner: false,
 
-            title: 'Dark Theme',
+            // title: 'Dark Theme',
             //By default theme setting, you can also set system
             // when your mobile theme is dark the app also become dark
 
