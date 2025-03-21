@@ -46,6 +46,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
           .from('messages')
           .select()
           .or('sender_id.eq.${user!.id},receiver_id.eq.${user!.id}')
+          // .or('sender_id.eq.${widget.receiverId},receiver_id.eq.${widget.receiverId}')
           .order('created_at', ascending: false);
 
       setState(() {
@@ -61,6 +62,8 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
     _supabase
         .from('messages')
         .stream(primaryKey: ['id'])
+        // .eq('sender_id', user!.id)
+        // .eq('receiver_id', widget.receiverId)
         .order('created_at', ascending: false)
         .listen((data) {
       setState(() {
