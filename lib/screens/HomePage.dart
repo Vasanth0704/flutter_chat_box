@@ -4,6 +4,8 @@ import 'package:flutter_chat_box/screens/RecentChatScreen.dart';
 import 'package:flutter_chat_box/screens/StatusScreen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'CallHistoryScreen.dart';
+
 final SupabaseClient _supabase = Supabase.instance.client;
 
 class HomePage extends StatefulWidget {
@@ -26,7 +28,8 @@ class _HomePageState extends State<HomePage> {
     final List<Widget> _screens = [
       RecentChatScreen(title: 'Chat $userName'),
       StatusScreen(title: 'Status'),
-      CallScreen(title: 'Call'),
+      // CallScreen(userID: '', userName: '', callID: '', ),
+      CallHistoryScreen()
     ];
 
     return Scaffold(
