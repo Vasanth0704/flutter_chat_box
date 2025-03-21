@@ -5,14 +5,14 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 
 class CallScreen extends StatelessWidget {
-  final String userID;
-  final String userName;
-  final String callID;
+  final String? userID;
+  final String? userName;
+  final String? callID;
 
   const CallScreen({
     Key? key,
-    required this.userID,
-    required this.userName,
+    this.userID,
+    this.userName,
     required this.callID,
   }) : super(key: key);
 
@@ -27,7 +27,7 @@ class CallScreen extends StatelessWidget {
         appSign: dotenv.env['ZEGOCLOUD_APP_SIGN'] ?? '', // Fetch App Sign
         userID: userId.toString(),
         userName: "User name $userId",
-        callID: callID,
+        callID: callID!,
         config: ZegoUIKitPrebuiltCallConfig.oneOnOneVideoCall(),
       ),
     );
