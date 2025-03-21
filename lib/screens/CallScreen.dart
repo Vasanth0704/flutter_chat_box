@@ -1,25 +1,34 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 
-class CallScreen extends StatefulWidget {
-  
-  final String title;
-  
-  const CallScreen({super.key, required this.title});
+class CallScreen extends StatelessWidget {
+  final String userID;
+  final String userName;
+  final String callID;
 
-  @override
-  State<CallScreen> createState() => _CallScreenState();
-}
+  const CallScreen({
+    Key? key,
+    required this.userID,
+    required this.userName,
+    required this.callID,
+  }) : super(key: key);
 
-class _CallScreenState extends State<CallScreen> {
   @override
   Widget build(BuildContext context) {
+
+    final userId = Random().nextInt(9999);
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        automaticallyImplyLeading: false, // Removes back arrow
-      ),
-      body: Center(
-        child: Text(widget.title),
+      body: ZegoUIKitPrebuiltCall(
+        appID: int.parse(dotenv.env['ZEGOCLOUD_APP_ID'] ?? '0'), // Convert to int
+        appSign: dotenv.env['ZEGOCLOUD_APP_SIGN'] ?? '', // Fetch App Sign
+        userID: userId.toString(),
+        userName: "User name $userId",
+        callID: callID,
+        config: ZegoUIKitPrebuiltCallConfig.oneOnOneVideoCall(),
       ),
     );
   }
