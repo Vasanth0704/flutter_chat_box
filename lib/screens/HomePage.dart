@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_box/screens/CallScreen.dart';
+import 'package:flutter_chat_box/screens/call/CallScreen.dart';
 import 'package:flutter_chat_box/screens/RecentChatScreen.dart';
 import 'package:flutter_chat_box/screens/StatusScreen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'CallHistoryScreen.dart';
+import 'call/CallHistoryScreen.dart';
 
 final SupabaseClient _supabase = Supabase.instance.client;
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 import 'NewCallScreen.dart';
-import 'NewChatScreen.dart';
+import '../NewChatScreen.dart';
 
 class CallHistoryScreen extends StatelessWidget {
   final List<Map<String, dynamic>> callLogs = [
