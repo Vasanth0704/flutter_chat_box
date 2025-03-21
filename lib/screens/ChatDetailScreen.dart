@@ -1,11 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:chat_bubbles/chat_bubbles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_box/screens/call/CallScreen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../provider/UiProvider.dart';
 import 'package:http/http.dart' as http;
+import '../provider/UiProvider.dart';
+import 'call/NewCallScreen.dart';
 
 final SupabaseClient _supabase = Supabase.instance.client;
 
@@ -26,18 +30,39 @@ class ChatDetailScreen extends StatefulWidget {
 }
 
 class _ChatDetailScreenState extends State<ChatDetailScreen> {
-  final TextEditingController _controller = TextEditingController();
+  final TextEditingController _messageController = TextEditingController();
   final user = _supabase.auth.currentUser;
   List<Map<String, dynamic>> _messages = [];
+
+  File? _imageFile;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
-    _fetchMessages(); // Fetch messages when screen loads
-    _subscribeToMessages(); // Listen for new messages in real-time
+    _fetchMessages();
   }
 
-  /// Fetch Messages Between Current User & Receiver
+  /// Fetch image from gallery.
+  Future<void> getImageFromGallery() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+    }
+  }
+
+  /// Fetch image from camera.
+  Future<void> getImageFromCamera() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.camera);
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+    }
+  }
+
   Future<void> _fetchMessages() async {
     if (user == null) return;
 
@@ -45,40 +70,30 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
       final response = await _supabase
           .from('messages')
           .select()
+          // .eq("receiver_id", widget.receiverId)
           .or('sender_id.eq.${user!.id},receiver_id.eq.${user!.id}')
-          // .or('sender_id.eq.${widget.receiverId},receiver_id.eq.${widget.receiverId}')
+          .or('sender_id.eq.${widget.receiverId},receiver_id.eq.${widget.receiverId}')
           .order('created_at', ascending: false);
 
+      // print(response.toString());
+
+      // print(widget.receiverEmail);
+
       setState(() {
-        _messages = response;
+        _messages = List<Map<String, dynamic>>.from(response);
       });
     } catch (e) {
       print("Error fetching messages: $e");
     }
   }
 
-  /// Listen for new messages in real-time
-  void _subscribeToMessages() {
-    _supabase
-        .from('messages')
-        .stream(primaryKey: ['id'])
-        // .eq('sender_id', user!.id)
-        // .eq('receiver_id', widget.receiverId)
-        .order('created_at', ascending: false)
-        .listen((data) {
-      setState(() {
-        _messages = data;
-      });
-    });
-  }
-
-  void _sendMessage() async {
-    if (_controller.text.isNotEmpty && user != null) {
-      String messageText = _controller.text.trim();
-      _controller.clear();
+  // 🔹 Function to send a new message
+  Future<void> _sendMessage() async {
+    if (_messageController.text.isNotEmpty && user != null) {
+      String messageText = _messageController.text.trim();
+      _messageController.clear();
 
       try {
-        // Store message in Supabase
         await _supabase.from('messages').insert({
           'message': messageText,
           'receiver_id': widget.receiverId,
@@ -87,7 +102,6 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
           'created_at': DateTime.now().toIso8601String(),
         });
 
-        // Ensure .env is loaded
         final flaskUrl = dotenv.env['FLASK_IP'] ?? '';
 
         if (flaskUrl.isEmpty) {
@@ -95,8 +109,6 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
           return;
         }
 
-        // Send message to Flask bot API
-        // Call bot API asynchronously
         Future.delayed(Duration(seconds: 5), () async {
           try {
             final botResponse = await http.post(
@@ -109,7 +121,6 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
               final data = jsonDecode(botResponse.body);
               String botReply = data["reply"] ?? "No response from bot";
 
-              // Insert bot's reply into Supabase after 5 seconds
               await _supabase.from('messages').insert({
                 'message': botReply,
                 'receiver_id': user!.id,
@@ -122,7 +133,6 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
             print("Error fetching bot reply: $e");
           }
         });
-
       } catch (e) {
         print("Error sending message: $e");
       }
@@ -154,14 +164,33 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
     );
   }
 
-  /// App Bar UI
   AppBar _buildAppBar() {
     return AppBar(
-      title: Text(widget.receiverEmail),
+      title: Text(widget.receiverEmail, overflow: TextOverflow.ellipsis,),
+      actions: [
+        IconButton(
+            onPressed: () {
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CallScreen(userID: user!.id, userName: user!.email, callID: user?.phone, ),
+                ),
+              );
+
+            },
+            icon: Icon(Icons.call)
+        ),
+        IconButton(
+            onPressed: () {
+
+            },
+            icon: Icon(Icons.videocam)
+        )
+      ],
     );
   }
 
-  /// Message List UI with ListView
   Widget _buildMessageList() {
     return Expanded(
       child: _messages.isEmpty
@@ -181,37 +210,39 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
     );
   }
 
-  /// Input field UI
   Widget _buildInputField() {
     return Container(
       padding: const EdgeInsets.all(8.0),
       color: Colors.black87,
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _controller,
-              decoration: InputDecoration(
-                hintText: 'Type a message...',
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                ),
-              ),
+      child: MessageBar(
+        onSend: (text) async {
+          if (text.trim().isEmpty) return;
+          _messageController.text = text;
+          await _sendMessage();
+          _fetchMessages();
+        },
+        actions: [
+          InkWell(
+            child: const Icon(Icons.add, color: Colors.black, size: 24),
+            onTap: () {
+              getImageFromGallery();
+            },
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8, right: 8),
+            child: InkWell(
+              child: const Icon(Icons.camera_alt, color: Colors.green, size: 24),
+              onTap: () {
+                getImageFromCamera();
+              },
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.send, color: Colors.blue),
-            onPressed: _sendMessage,
-          ),
         ],
-      ),
+      )
     );
   }
 }
 
-// Chat Bubble Widget
 class ChatBubble extends StatelessWidget {
   final String? message;
   final bool isSentByMe;
